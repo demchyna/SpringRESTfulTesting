@@ -1,6 +1,7 @@
 package com.softserve.academy.controller;
 
 import com.softserve.academy.model.User;
+import com.softserve.academy.service.IUserService;
 import com.softserve.academy.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -12,8 +13,12 @@ import java.util.List;
 @RestController
 public class UserController {
 
+    private final IUserService userService;
+
     @Autowired
-    private UserService userService;
+    public UserController(IUserService userService) {
+        this.userService = userService;
+    }
 
     @RequestMapping(value = "api/user/create", method = RequestMethod.POST)
     @ResponseStatus(value = HttpStatus.CREATED)
@@ -24,8 +29,7 @@ public class UserController {
     @RequestMapping(value = "api/user/id/{id}", method = RequestMethod.GET)
     @ResponseStatus(value = HttpStatus.OK)
     public User getUserById(@PathVariable int id) {
-        User user = userService.getUserById(id);
-        return user;
+        return userService.getUserById(id);
     }
 
     @RequestMapping(value = "api/user/update", method = RequestMethod.PUT)
@@ -40,10 +44,10 @@ public class UserController {
         userService.deleteUser(user);
     }
 
+    @SuppressWarnings("unchecked")
     @RequestMapping(value = "api/user/all", method = RequestMethod.GET)
     @ResponseStatus(value = HttpStatus.OK)
     public List<User> getAllUsers() throws IOException {
-        List<User> users = userService.getAllUsers();
-        return users;
+        return (List<User>) userService.getAllUsers();
     }
 }
