@@ -6,15 +6,11 @@ import com.softserve.academy.configuration.WebConfig;
 import com.softserve.academy.model.User;
 import com.softserve.academy.service.IUserService;
 import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -32,7 +28,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-//@RunWith(MockitoJUnitRunner.class)
 @ContextConfiguration(classes = { WebConfig.class })
 @WebAppConfiguration
 public class UserControllerTest {
@@ -63,14 +58,14 @@ public class UserControllerTest {
         when(userServiceMock.getUserById(anyInt())).thenReturn(user);
 
         mockMvc.perform(
-                get("/api/user/id/2"))
+                get("/api/users/2"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                 .andExpect(jsonPath("$.id", is(2)))
                 .andExpect(jsonPath("$.username", is("mike")))
                 .andExpect(jsonPath("$.password", is("2222")));
 
-        verify(userServiceMock).getUserById(anyInt());
+        verify(userServiceMock, atLeastOnce()).getUserById(anyInt());
         verifyNoMoreInteractions(userServiceMock);
     }
 
@@ -85,7 +80,7 @@ public class UserControllerTest {
         when(userServiceMock.getAllUsers()).thenReturn(users);
 
         mockMvc.perform(
-                get("/api/user/all"))
+                get("/api/users"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                 .andExpect(jsonPath("$", hasSize(2)))
@@ -108,7 +103,7 @@ public class UserControllerTest {
         doNothing().when(userServiceMock).createUser(user);
 
         mockMvc.perform(
-                post("/api/user/create")
+                post("/api/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(user)))
                 .andExpect(status().isCreated());
@@ -125,7 +120,7 @@ public class UserControllerTest {
         doNothing().when(userServiceMock).updateUser(user);
 
         mockMvc.perform(
-                put("/api/user/update")
+                put("/api/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(user)))
                 .andExpect(status().isNoContent());
@@ -137,16 +132,13 @@ public class UserControllerTest {
     @Test
     public void testDeleteUserAction() throws Exception {
 
-        User user = new User(1, "nick", "111");
-
-        doNothing().when(userServiceMock).deleteUser(user);
+        doNothing().when(userServiceMock).deleteUser(anyInt());
         mockMvc.perform(
-                delete("/api/user/delete")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(user)))
+                delete("/api/users/1")
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
 
-        verify(userServiceMock, times(1)).deleteUser(user);
+        verify(userServiceMock, times(1)).deleteUser(anyInt());
         verifyNoMoreInteractions(userServiceMock);
     }
 }
