@@ -14,11 +14,6 @@ public class UserController {
 
     private IUserService userService;
 
-//    @Autowired
-//    public UserController(IUserService userService) {
-//        this.userService = userService;
-//    }
-
     @RequestMapping(value = "api/users", method = RequestMethod.POST)
     @ResponseStatus(value = HttpStatus.CREATED)
     public void createUser(@RequestBody User user) {
